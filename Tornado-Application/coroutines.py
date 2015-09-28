@@ -20,10 +20,13 @@ def fetch_coroutine(url):
 
     # Yield the fetch of http_client so that the ioloop can do other things
     response = None
-    try:
-        response = yield http_client.fetch(url)
-    except:
-        pass
+    retries = 0
+    while response == None and retries <= 50:
+        try:
+            retries += 1
+            response = yield http_client.fetch(url)
+        except:
+            pass
 
     # Returns a json file decoded, if there is no issues with fetching url
     if response:
@@ -47,14 +50,20 @@ def parallel_fetch_coroutine(urls):
     #                                           json file from 'http://youtubeapi.com/setting?a=1'
 
     # Create an Async http client
-    http_client = AsyncHTTPClient(connect_timeout=5000, request_timeout=5000)
+    http_client = AsyncHTTPClient()
 
     # Yield multiple urls in parallel
     responses = None
-    try:
-        responses = yield [http_client.fetch(url) for url in urls]
-    except:
-        pass
+    retries = 0
+    while responses == None and retries <= 50:
+        try:
+            retries += 1
+            responses = yield [http_client.fetch(url) for url in urls]
+        except:
+            pass
 
     # Return a list of json objects
-    raise gen.Return([escape.json_decode(response.body) for response in responses])
+    if responses:
+        raise gen.Return([escape.json_decode(response.body) for response in responses])
+    else:
+        raise gen.Return(responses)
