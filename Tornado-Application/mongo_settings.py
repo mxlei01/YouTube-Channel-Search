@@ -22,3 +22,15 @@ def createIndexesDateDescending(collection):
 
     # Creates an index at date in descending
     yield collection.create_index("date", pymongo.DESCENDING)
+
+@gen.coroutine
+def createIndexAt(collection, variable):
+    # Usage:
+    #       creates indexes on a collection on on a variable
+    # Arguments:
+    #       collection  : Used for creation of indexes in the collection of the a specific database
+    # Return:
+    #       None
+
+    # Creates an index at date in descending
+    yield collection.create_index(variable)

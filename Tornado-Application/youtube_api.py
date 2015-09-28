@@ -1,12 +1,21 @@
 # youtube_api.py stores all the actions for the REST API for youtube
 
-# getChannelID is used to get data (such as channel ID, which is not equal to the name) for a specific channel
+# getChannel is used to get data (such as channel ID, which is not equal to the name) for a specific channel using username
 # Parameters:
 #   forUsername : username of the channel
 #   key         : API key
 #   pageToken   : token of the page, can be blank or used with nextPageToken to get to the next page
 #                 if the # of results is over maxResults value
 getChannels = "https://www.googleapis.com/youtube/v3/channels?part=contentDetails&forUsername=%s&maxResults=50&key=%s&pageToken=%s"
+
+# getChannel_withID is used to get data (such as channel ID, which is not equal to the name) for a specific channel using ID
+# Parameters:
+#   forUsername : username of the channel
+#   key         : API key
+#   pageToken   : token of the page, can be blank or used with nextPageToken to get to the next page
+#                 if the # of results is over maxResults value
+getChannels_withID = "https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=%s&maxResults=50&key=%s&pageToken=%s"
+
 
 # get each video information according to the channelID we get get from using getChannels
 # Parameters:

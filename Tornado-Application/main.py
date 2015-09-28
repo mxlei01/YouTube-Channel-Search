@@ -23,6 +23,7 @@ if __name__ == "__main__":
     # Create neccessary indexes on video and user and on date in descending
     mongo_settings.createIndexesDateDescending(mongo.client.youtube.video)
     mongo_settings.createIndexesDateDescending(mongo.client.youtube.user)
+    mongo_settings.createIndexAt(mongo.client.youtube.user, "username")
 
     # Set the application to listen to port 8888
     application.listen(settings.port)
