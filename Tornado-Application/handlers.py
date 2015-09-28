@@ -15,6 +15,8 @@ import youtube_api
 import settings
 # Import logging
 import logger
+# Import mongo functions
+import mongo
 
 # handlers.py contains all the handlers that tornado application uses
 
@@ -98,6 +100,11 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                         # A flag to indicate that we have more comments to go through
                         commentThreadNextPageToken = True
 
+                        # Store the information of the video inside the video collection
+                        result = yield mongo.insert_video(self.db, channelID["id"], video["id"]["videoId"], video["snippet"]["title"], video["snippet"]["description"], video["snippet"]["publishedAt"])
+                        logger.logger.info("mongo.insert_video, channelID[id]:%s, video[id][videoId]:%s, video[snippet][title]:%s, video[snippet][description]:%s, video[snippet][publishedAt]:%s, result:%s"
+                                           % (channelID["id"], video["id"]["videoId"], video["snippet"]["title"], video["snippet"]["description"], video["snippet"]["publishedAt"], result))
+
                         # Loop through next set of comments
                         while commentThreadNextPageToken:
                             # Fetch the comments for a specific video
@@ -107,7 +114,9 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                             # Loop through each top level comments
                             for topComment in commentThreadJson["items"]:
                                 # Store the Data into MongoDB
-
+                                result = yield mongo.insert_user_comments(self.db, video["id"]["videoId"], topComment["id"], topComment["snippet"]["topLevelComment"]["snippet"]["authorDisplayName"], topComment["snippet"]["topLevelComment"]["snippet"]["textDisplay"], topComment["snippet"]["topLevelComment"]["snippet"]["updatedAt"])
+                                logger.logger.info("mongo.insert_user_comments, video[id][videoId]:%s, topComment[id]:%s, topComment[snippet][topLevelComment][snippet][authorDisplayName]:%s, topComment[snippet][topLevelComment][snippet][textDisplay]:%s, topComment[snippet][topLevelComment][snippet][updatedAt]:%s, result:%s"
+                                                   % (video["id"]["videoId"], topComment["id"], topComment["snippet"]["topLevelComment"]["snippet"]["authorDisplayName"], topComment["snippet"]["topLevelComment"]["snippet"]["textDisplay"], topComment["snippet"]["topLevelComment"]["snippet"]["updatedAt"], result))
 
                                 # If the total reply count > 0, then we know that there are replies
                                 # to this comment
@@ -124,8 +133,12 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                         commentRepliesJson = yield coroutines.fetch_coroutine(getCommentRepliesAPI)
                                         logger.logger.info("getCommentRepliesAPI:%s, commentRepliesJson:%s" % (getCommentRepliesAPI, commentRepliesJson))
 
-                                        # Store the data into MongoDB
-
+                                        # Loop through each top comment replies
+                                        for replies in commentRepliesJson["items"]:
+                                            # Store the data into MongoDB
+                                            result = yield mongo.insert_user_comments(self.db, video["id"]["videoId"], replies["id"], replies["snippet"]["authorDisplayName"], replies["snippet"]["textDisplay"], replies["snippet"]["updatedAt"])
+                                            logger.logger.info("mongo.insert_user_comments_replies, video[id][videoId]:%s, topComment[id]:%s, topComment[snippet][authorDisplayName]:%s, topComment[snippet][textDisplay]:%s, topComment[snippet][updatedAt]:%s, result:%s"
+                                                               % (video["id"]["videoId"], replies["id"], replies["snippet"]["authorDisplayName"], replies["snippet"]["textDisplay"], replies["snippet"]["updatedAt"], result))
 
                                         # If next page token does not exist, then we can stop the loop
                                         if "nextPageToken" not in commentRepliesJson:
