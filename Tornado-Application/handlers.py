@@ -74,8 +74,6 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
         if channelID:
             getChannelAPI = youtube_api.getChannels_withID % (channelID, settings.youtube_API_key, "")
 
-        print "Start"
-
         # Loop through channels if nextPageToken exists
         while channelNextPageToken:
             # Fetch the data for the channel
@@ -190,8 +188,6 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                     # If there is channelID, then create it using channelID
                     if channelID:
                         getChannelAPI = youtube_api.getChannels_withID % (channelID, settings.youtube_API_key, channelNameJson["nextPageToken"])
-
-        print "End"
 
         #response = { 'status': 'done' }
         #self.write(response)
