@@ -20,10 +20,8 @@ if __name__ == "__main__":
     # Check if mongoDB is available
     mongo.client.admin.command('ping', callback=mongo.checkMongoDB)
 
-    # Create neccessary indexes on video and user and on date in descending
-    mongo_settings.createIndexesDateDescending(mongo.client.youtube.video)
-    mongo_settings.createIndexesDateDescending(mongo.client.youtube.user)
-    mongo_settings.createIndexAt(mongo.client.youtube.user, "username")
+    # Create neccessary indexes before we start appending data into MongoDB
+    mongo_settings.createIndexes(mongo.client)
 
     # Set the application to listen to port 8888
     application.listen(settings.port)

@@ -12,7 +12,7 @@ mongodb_address = 'localhost'
 mongodb_port = 27017
 
 @gen.coroutine
-def createIndexesDateDescending(collection):
+def createIndexesAtWithDirection(collection, field, direction):
     # Usage:
     #       creates indexes on a collection on date and descending
     # Arguments:
@@ -21,7 +21,7 @@ def createIndexesDateDescending(collection):
     #       None
 
     # Creates an index at date in descending
-    yield collection.create_index("date", pymongo.DESCENDING)
+    yield collection.create_index(field, direction)
 
 @gen.coroutine
 def createIndexAt(collection, variable):
@@ -34,3 +34,23 @@ def createIndexAt(collection, variable):
 
     # Creates an index at date in descending
     yield collection.create_index(variable)
+
+def createIndexes(client):
+    # Usage:
+    #       Creates indexes on fields on the youtube database, with three
+    #       different tables, such as videos, user, comments, which are used
+    #       to speedup queries for sorting, and uniqueness on user and date.
+    # Arguments:
+    #       client: MongoDB Client
+    # Return:
+    #       None
+
+    # Create indexes on video and user and on date in descending
+    createIndexesAtWithDirection(client.youtube.video, "date", pymongo.DESCENDING)
+    createIndexesAtWithDirection(client.youtube.user, "date", pymongo.DESCENDING)
+    # Create indexes on username, so that queries on user is faster
+    createIndexAt(client.youtube.user, "username")
+    # Create indexes on username and date, so that queries on the user is faster
+    createIndexAt(client.youtube.comments, "username")
+    createIndexesAtWithDirection(client.youtube.comments, "dateOfReply", pymongo.DESCENDING)
+    createIndexesAtWithDirection(client.youtube.comments, "dateOfVideo", pymongo.DESCENDING)

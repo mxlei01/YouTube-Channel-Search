@@ -49,7 +49,7 @@ def insert_video(db_client, channelId, videoId, title, description, date):
     #       Inserts a video into mongodb
     # Arguments:
     #       db_client   : the client of mongodb
-    #       channelID   : the channel ID of a channel
+    #       channelId   : the channel ID of a channel
     #       videoId     : the video ID of a video
     #       title       : title of a video
     #       description : description of a video
@@ -84,6 +84,7 @@ def insert_user_comments(db_client, videoId, commentId, username, textDisplay, d
     #       username    : username who commented
     #       textDisplay : the comment that the user posted
     #       date        : when the date was posted
+    #       videoId     : ID of the video
     # Return:
     #       None
 
@@ -93,6 +94,42 @@ def insert_user_comments(db_client, videoId, commentId, username, textDisplay, d
     # Create a document from videoId, title, and description
     # using channelId, and videoId as a primary key
     document = {"_id":{"videoId":videoId, "commentId":commentId}, "username":username, "textDisplay":textDisplay, "date":date}
+
+    # Yields the insertion of the video, and tries to insert, which can fail
+    # since there might be already a videoId
+    result = None
+    try:
+        result = yield collection.insert(document)
+    except errors.DuplicateKeyError:
+        pass
+
+    raise gen.Return(result)
+
+@gen.coroutine
+def insert_user_video_comments(db_client, commentId, username, textDisplay, dateOfReply, channelId, videoId, title, description, dateOfVideo):
+    # Usage:
+    #       Inserts a user comment into mongodb
+    # Arguments:
+    #       db_client      : the client of mongodb
+    #       commentId      : the comment ID of a comment
+    #       username       : username who commented
+    #       textDisplay    : the comment that the user posted
+    #       dateOfReply  : when the date was posted
+    #       channelId      : the channel ID of a channel
+    #       videoId        : the video ID of a video
+    #       title          : title of a video
+    #       description    : description of a video
+    #       dateOfVideo  : date of the video uploaded
+    # Return:
+    #       None
+
+    # Get the collection: user, from database: youtube
+    collection = db_client.youtube.comments
+
+    # Create a document from videoId, title, and description
+    # using channelId, and videoId as a primary key
+    document = {"_id":commentId, "username":username, "textDisplay":textDisplay, "dateOfReply":dateOfReply,
+                "channelId":channelId, "videoId":videoId, "title":title, "description":description, "dateOfVideo":dateOfVideo}
 
     # Yields the insertion of the video, and tries to insert, which can fail
     # since there might be already a videoId
