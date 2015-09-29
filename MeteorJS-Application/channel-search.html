@@ -86,4 +86,13 @@
             </div>
         </div>
     </div>
+    <div class="ui segment">
+        {{#each comments}}
+            {{> comment}}
+        {{/each}}
+    </div>
 </body>
+
+<template name="comment">
+    {{textDisplay}}
+</template>
