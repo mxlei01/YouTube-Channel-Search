@@ -33,7 +33,9 @@ class TestRequestHandler(tornado.web.RequestHandler):
         # Return:
         #       None
 
-        self.write("Hello, world")
+        # Test response, users are not supposed to be here
+        response = {'success': 'true'}
+        self.write(response)
 
 class ChannelRequestHandler(tornado.web.RequestHandler):
     # Handler to receive channel names from the meteor js application
@@ -133,6 +135,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
 
                                                 # Store the Data into MongoDB
                                                 result = yield mongo.insert_user_video_comments(self.db, topComment["id"],
+                                                                                                channelName,
                                                                                                 topComment["snippet"]["topLevelComment"]["snippet"]["authorDisplayName"],
                                                                                                 topComment["snippet"]["topLevelComment"]["snippet"]["textDisplay"],
                                                                                                 topComment["snippet"]["topLevelComment"]["snippet"]["updatedAt"],
@@ -143,6 +146,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                                                                                 video["snippet"]["publishedAt"])
                                                 logger.logger.info("mongo.insert_user_video_comments, "
                                                                    "topComment[id]:%s, "
+                                                                   "channelName:%s, "
                                                                    "topComment[snippet][topLevelComment][snippet][textDisplay]:%s, "
                                                                    "topComment[snippet][topLevelComment][snippet][authorDisplayName]:%s, "
                                                                    "topComment[snippet][topLevelComment][snippet][updatedAt]:%s, "
@@ -153,6 +157,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                                                    "video[snippet][publishedAt]:%s, "
                                                                    "result:%s"
                                                                     % (topComment["id"],
+                                                                        channelName,
                                                                         topComment["snippet"]["topLevelComment"]["snippet"]["authorDisplayName"],
                                                                         topComment["snippet"]["topLevelComment"]["snippet"]["textDisplay"],
                                                                         topComment["snippet"]["topLevelComment"]["snippet"]["updatedAt"],
@@ -190,6 +195,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
 
                                                                 # Store the data into MongoDB
                                                                 result = yield mongo.insert_user_video_comments(self.db, replies["id"],
+                                                                                                                channelName,
                                                                                                                 replies["snippet"]["authorDisplayName"],
                                                                                                                 replies["snippet"]["textDisplay"],
                                                                                                                 replies["snippet"]["updatedAt"],
@@ -199,7 +205,8 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                                                                                                 video["snippet"]["description"],
                                                                                                                 video["snippet"]["publishedAt"])
                                                                 logger.logger.info("mongo.insert_user_video_comments, "
-                                                                                   "replies[id]%s, "
+                                                                                   "replies[id]:%s, "
+                                                                                   "channelName:%s, "
                                                                                    "replies[snippet][authorDisplayName]:%s, "
                                                                                    "replies[snippet][textDisplay]:%s, "
                                                                                    "replies[snippet][updatedAt]:%s, "
@@ -210,6 +217,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                                                                    "video[snippet][publishedAt]:%s, "
                                                                                    "result:%s"
                                                                                     % (replies["id"],
+                                                                                        channelName,
                                                                                         replies["snippet"]["authorDisplayName"],
                                                                                         replies["snippet"]["textDisplay"],
                                                                                         replies["snippet"]["updatedAt"],
@@ -256,7 +264,10 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                     if channelID:
                         getChannelAPI = youtube_api.getChannels_withID % (channelID, settings.youtube_API_key, channelNameJson["nextPageToken"])
 
-        #response = { 'status': 'done' }
-        #self.write(response)
+        # Returns a JSON query response to the user indicating that the
+        # search is done
+        response = {'success': 'true',
+                    "results": [{"title": "Search Done!"}]}
 
-        self.write("Done")
+        # Send the json response back to the web browser
+        self.write(response)

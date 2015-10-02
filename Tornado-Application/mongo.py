@@ -106,12 +106,13 @@ def insert_user_comments(db_client, videoId, commentId, username, textDisplay, d
     raise gen.Return(result)
 
 @gen.coroutine
-def insert_user_video_comments(db_client, commentId, username, textDisplay, dateOfReply, channelId, videoId, title, description, dateOfVideo):
+def insert_user_video_comments(db_client, commentId, channelName, username, textDisplay, dateOfReply, channelId, videoId, title, description, dateOfVideo):
     # Usage:
     #       Inserts a user comment into mongodb
     # Arguments:
     #       db_client      : the client of mongodb
     #       commentId      : the comment ID of a comment
+    #       channelName    : the channel name, which is not the channel ID
     #       username       : username who commented
     #       textDisplay    : the comment that the user posted
     #       dateOfReply  : when the date was posted
@@ -128,7 +129,7 @@ def insert_user_video_comments(db_client, commentId, username, textDisplay, date
 
     # Create a document from videoId, title, and description
     # using channelId, and videoId as a primary key
-    document = {"_id":commentId, "username":username, "textDisplay":textDisplay, "dateOfReply":dateOfReply,
+    document = {"_id":commentId, "channelName":channelName, "username":username, "textDisplay":textDisplay, "dateOfReply":dateOfReply,
                 "channelId":channelId, "videoId":videoId, "title":title, "description":description, "dateOfVideo":dateOfVideo}
 
     # Yields the insertion of the video, and tries to insert, which can fail

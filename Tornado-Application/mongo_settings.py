@@ -52,6 +52,7 @@ def createIndexes(client):
     createIndexAt(client.youtube.user, "username")
     # Create indexes on username and date, so that queries on the user is faster
     createIndexAt(client.youtube.comments, "username")
+    createIndexAt(client.youtube.comments, "channelName")
     createIndexesAtWithDirection(client.youtube.comments, "dateOfReply", pymongo.DESCENDING)
     createIndexesAtWithDirection(client.youtube.comments, "dateOfVideo", pymongo.DESCENDING)
     # Create indexes on videoId and channelId, since we will need to find distinct, or query against them
