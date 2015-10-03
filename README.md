@@ -1,7 +1,7 @@
 # YouTube-Channel-Search
 Searches a channel in Youtube, and lists out all the user's comments, based on MeteorJS, Tornado, and MongoDB.
 
-How to Setup:
+<h1> How to Setup: </h1>
 1. Install Tornado, Motor, PyMongo, MeteorJS, and MongoDB.
 2. Use default settings for MongoDB.
 3. You can call python main.py in the Tornado application folder, and it will startup a tornado application connecting to the default settings for MongoDB (localhost, and 27017 port).
