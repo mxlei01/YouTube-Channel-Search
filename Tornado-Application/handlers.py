@@ -16,7 +16,7 @@ import settings
 # Import logging
 import logger
 # Import mongo functions
-import mongo
+import mongo, mongo_settings
 
 # handlers.py contains all the handlers that tornado application uses
 
@@ -263,6 +263,60 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                     # If there is channelID, then create it using channelID
                     if channelID:
                         getChannelAPI = youtube_api.getChannels_withID % (channelID, settings.youtube_API_key, channelNameJson["nextPageToken"])
+
+        # Get the queryKey and queryResult depending on if the user has provided a
+        # channelID.
+        channelName = self.get_argument('name')
+        channelID = self.get_argument('id')
+        queryKey = "channelName"
+        queryResult = channelName
+        if channelID:
+            queryKey = "channelId"
+            queryResult = channelID
+
+        # The next part of the task is to aggregate the data, where we want to get all the videos
+        # in a specific channel that matches to a username
+        # _id:Username
+        # 	{Video1, channelID}
+        #		Comments
+        #		Comments
+        #	{Video1, channelID}
+        #		Comments
+        #		Comments
+        #	{Video1, channelID}
+        #		Comments
+        result = yield mongo.aggregate_user_videoId(mongo.client, mongo.mapper, mongo.reducer, mongo_settings.tempCollectionName, queryKey, queryResult)
+        logger.logger.info("aggregate_user_videoId, mongo.mapper:%s, mongo.reducer:%s, "
+                           "tempCollectionName:%s, queryKey:%s, queryResult:%s, result:%s"
+                           % (str(mongo.mapper), str(mongo.reducer), mongo_settings.tempCollectionName, queryKey, queryResult, result))
+
+        # Create a cursur, this is different than in pymongo where result.find will give you a document
+        motorCursor = result.find()
+
+        # For each of the mapReduceResult, which is now a dictionary of user, and list of videoId (string)
+        while (yield motorCursor.fetch_next):
+            # Get the next object from motorCursur
+            mapReduceResult = motorCursor.next_object()
+
+            # We will get each of the videoId when we split the string of videoId's, and we cast a
+            # set in order to make the list unique, since a user can comment on the same videos
+            for videoId in set(mapReduceResult["value"].split(',')):
+                # For each of the find all the comments that a user commented inside a unique videoId
+                # which means all the comments in a video. This is able to find multiple comments
+                # a user commented inside a video
+
+                # Get the cursor to find the comments according to videoId and userName
+                commentsMotorCursur = mongo.client.youtube.comments.find({"videoId":videoId, "username":mapReduceResult["_id"]})
+
+                # Fetch the next comments
+                while (yield commentsMotorCursur.fetch_next):
+                    # Get the next comment
+                    comment = commentsMotorCursur.next_object()
+
+                    # Add the next comment into user_video collection
+                    result = yield mongo.insert_aggregate_user_video(mongo.client, mapReduceResult, comment)
+                    logger.logger.info("insert_aggregate_user_video, mapReduceResult:%s, comment:%s, result:%s"
+                                       % (mapReduceResult, comment, result))
 
         # Returns a JSON query response to the user indicating that the
         # search is done

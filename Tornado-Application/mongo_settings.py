@@ -11,6 +11,9 @@ mongodb_address = 'localhost'
 # defines the moongodb port that we are going to connect
 mongodb_port = 27017
 
+# defines a temporary collection name that we will use to store our MapReduce data
+tempCollectionName = "Temp"
+
 @gen.coroutine
 def createIndexesAtWithDirection(collection, field, direction):
     # Usage:
