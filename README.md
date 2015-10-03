@@ -9,3 +9,4 @@ Searches a channel in Youtube, and lists out all the user's comments, based on M
 5. There are two input support when you first visit localhost:3000.
     <p>A. channel ID: when you see a youtube URL that has channel/38dk4j3k4jd83, the "38dk4j3k4jd83" is a channel ID then use the channel ID search mode</p>
     <p>B. user name : when you see a youtube URL that has user/someName, the "someName" is a username then use the user name search mode</p>
+6. Setup an API key in the settings.py file, you will need to go to the developer console in google, and select youtube data API.
