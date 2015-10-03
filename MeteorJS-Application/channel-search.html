@@ -74,44 +74,30 @@
         </div>
     </div>
     <div class="ui segment">
-        <div class="html ui top attached segment">
-            <div class="ui comments">
-                <h3 class="ui dividing header">Joe Henderson</h3>
-                <div class="comment">
-                    <div class="content">
-                        <a class="author">Video Name</a>
-                        <div class="metadata">
-                            <span class="date">Today at 5:42PM</span>
-                        </div>
-                        <div class="text">
-                            How artistic!
-                        </div>
-                    </div>
-                </div>
-                <div class="comment">
-                    <div class="content">
-                        <a class="author">Video Name</a>
-                        <div class="metadata">
-                            <span class="date">5 days ago</span>
-                        </div>
-                        <div class="text">
-                            Dude, this is awesome. Thanks so much
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="ui segment">
-        {{#each comments}}
-                {{> comment}}
+        {{#each user_videos}}
+            {{> user_video}}
         {{/each}}
     </div>
 </body>
 
 <!-- templated used to display user comments and videos -->
-<template name="comment">
-    {{title}}
-    {{username}}
-    {{textDisplay}}
+<template name="user_video">
+    <div class="html ui top attached segment">
+        <div class="ui comments">
+            <h3 class="ui dividing header">{{_id}}</h3>
+            <div class="comment">
+                {{#each videos}}
+                <div class="content">
+                    <a class="author">{{videoName}}</a>
+                    <div class="metadata">
+                        <span class="date">{{time}}</span>
+                    </div>
+                    <div class="text">
+                        {{comment}}
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+    </div>
 </template>
