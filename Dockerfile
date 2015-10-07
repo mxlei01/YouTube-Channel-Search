@@ -33,6 +33,13 @@ RUN mkdir MongoDB
 RUN tar -C ./MongoDB -zxvf mongodb-linux-x86_64-3.0.6.tgz
 #===========================Installing MongoDB=================================
 
-#===========================Installing MeteorJS================================
+#===========================Installing Supervisord=============================
 RUN apt-get install -y supervisor
-#===========================Installing MeteorJS================================
+#===========================Installing Supervisord==============================
+
+#===========================Run Supervisord=====================================
+COPY Supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+RUN mkdir /var/log/supervisor
+RUN mkdir /var/supervisord
+#CMD /usr/bin/supervisord
+#===========================Run Supervisord=====================================
