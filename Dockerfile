@@ -39,7 +39,6 @@ RUN apt-get install -y supervisor
 
 #===========================Run Supervisord=====================================
 COPY Supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-RUN mkdir /var/log/supervisor
 RUN mkdir /var/supervisord
 #CMD /usr/bin/supervisord
 #===========================Run Supervisord=====================================
