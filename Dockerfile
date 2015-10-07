@@ -17,7 +17,7 @@ RUN apt-get -y install build-essential > /dev/null 2>&1
 #===========================End Update Debian==================================
 
 #===========================Install Tornado/PyMongo/Motor======================
-RUN sudo apt-get install python-pip
+RUN apt-get install python-pip
 RUN pip install tornado
 RUN pip install pymongo==2.8
 RUN pip install motor
