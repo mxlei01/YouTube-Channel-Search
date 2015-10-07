@@ -25,5 +25,14 @@ RUN pip install motor
 
 #===========================Installing MeteorJS================================
 RUN curl https://install.meteor.com/ | sh
-#==============================================================================
+#===========================Installing MeteorJS================================
 
+#===========================Installing MongoDB=================================
+RUN curl -O https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.0.6.tgz
+RUN mkdir MongoDB
+RUN tar -zxvf mongodb-linux-x86_64-3.0.6.tgz ./MongoDB
+#===========================Installing MongoDB=================================
+
+#===========================Installing MeteorJS================================
+RUN apt-get install -y supervisor
+#===========================Installing MeteorJS================================
