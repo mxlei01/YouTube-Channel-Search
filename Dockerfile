@@ -8,12 +8,12 @@ COPY MeteorJS-Application  /application/MeteorJS-Application
 #=====Create a folder, and copy our application into the application folder====
 
 #===========================Start Update Debian================================
-RUN apt-get -y update > /dev/null 2>&1
-RUN apt-get -y upgrade > /dev/null 2>&1
-RUN apt-get -y install apt-utils > /dev/null 2>&1
-RUN apt-get -y update > /dev/null 2>&1 
-RUN apt-get -y upgrade > /dev/null 2>&1 
-RUN apt-get -y install build-essential > /dev/null 2>&1
+RUN apt-get -y update 
+RUN apt-get -y upgrade
+RUN apt-get -y install apt-utils 
+RUN apt-get -y update 
+RUN apt-get -y upgrade
+RUN apt-get -y install build-essential python-dev
 #===========================End Update Debian==================================
 
 #===========================Install Tornado/PyMongo/Motor======================
