@@ -30,7 +30,7 @@ RUN curl https://install.meteor.com/ | sh
 #===========================Installing MongoDB=================================
 RUN curl -O https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.0.6.tgz
 RUN mkdir MongoDB
-RUN tar -zxvf mongodb-linux-x86_64-3.0.6.tgz ./MongoDB
+RUN tar -C ./MongoDB -zxvf mongodb-linux-x86_64-3.0.6.tgz
 #===========================Installing MongoDB=================================
 
 #===========================Installing MeteorJS================================
