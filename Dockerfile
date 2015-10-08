@@ -21,6 +21,7 @@ RUN apt-get -y install python-pip
 RUN pip install tornado
 RUN pip install pymongo==2.8
 RUN pip install motor
+RUN pip install futures
 #===========================Install Tornado/PyMongo/Motor======================
 
 #===========================Installing MeteorJS================================
