@@ -39,10 +39,8 @@ RUN apt-get install -y supervisor
 #===========================Installing Supervisord=============================
 
 #===========================Installing NodeJS==================================
-RUN apt-get -y install python-software-properties
-RUN add-apt-repository ppa:chris-lea/node.js
-RUN apt-get update
-RUN apt-get -y install nodejs
+RUN curl --silent --location https://deb.nodesource.com/setup_4.x | bash -
+RUN apt-get install --yes nodejs
 #===========================Installing NodeJS==================================
 
 #===========================Installing demeteorizer============================
