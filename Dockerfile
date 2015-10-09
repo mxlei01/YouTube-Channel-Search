@@ -61,8 +61,8 @@ EXPOSE 443
 #===========================Expose Ports=======================================
 
 #===========================Create the application in meteorJS folder==========
-RUN meteor remove insecure
-RUN meteor remove autopublish
+RUN cd /application/MeteorJS-Application && meteor remove insecure
+RUN cd /application/MeteorJS-Application && meteor remove autopublish
 RUN cd /application/MeteorJS-Application && meteor create . && npm install
 #===========================Create the application in meteorJS folder==========
 
