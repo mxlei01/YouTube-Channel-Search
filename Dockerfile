@@ -32,11 +32,16 @@ RUN curl https://install.meteor.com/ | sh
 RUN curl -O https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.0.6.tgz
 RUN mkdir MongoDB
 RUN tar -C ./MongoDB -zxvf mongodb-linux-x86_64-3.0.6.tgz
+RUN mkdir /MongoDB/mongodb-linux-x86_64-3.0.6/.data
 #===========================Installing MongoDB=================================
 
 #===========================Installing Supervisord=============================
 RUN apt-get install -y supervisor
 #===========================Installing Supervisord=============================
+
+#===========================Installing PS======================================
+RUN apt-get install -y procps
+#===========================Installing PS======================================
 
 #===========================Installing NodeJS==================================
 RUN curl --silent --location https://deb.nodesource.com/setup_4.x | bash -
