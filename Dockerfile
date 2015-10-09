@@ -64,7 +64,7 @@ EXPOSE 443
 RUN cd /application/MeteorJS-Application && meteor create . 
 RUN cd /application/MeteorJS-Application && meteor remove insecure
 RUN cd /application/MeteorJS-Application && meteor remove autopublish
-RUN cd /application/MeteorJS-Application && npm install
+RUN cd /application/MeteorJS-Application && demeteorizer && npm install
 #===========================Create the application in meteorJS folder==========
 
 #===========================Run Supervisord====================================
