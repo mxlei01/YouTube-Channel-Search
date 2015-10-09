@@ -60,6 +60,10 @@ EXPOSE 80
 EXPOSE 443
 #===========================Expose Ports=======================================
 
+#===========================Create the application in meteorJS folder==========
+RUN cd /MeteorJS-Application && meteor create .
+#===========================Create the application in meteorJS folder==========
+
 #===========================Run Supervisord====================================
 COPY Supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN mkdir /var/supervisord
