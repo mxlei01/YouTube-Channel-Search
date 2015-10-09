@@ -36,10 +36,28 @@ RUN tar -C ./MongoDB -zxvf mongodb-linux-x86_64-3.0.6.tgz
 
 #===========================Installing Supervisord=============================
 RUN apt-get install -y supervisor
-#===========================Installing Supervisord==============================
+#===========================Installing Supervisord=============================
 
-#===========================Run Supervisord=====================================
+#===========================Installing NodeJS==================================
+RUN add-apt-repository ppa:chris-lea/node.js
+RUN apt-get -y update
+RUN apt-get -y install nodejs
+#===========================Installing NodeJS==================================
+
+#===========================Installing demeteorizer============================
+RUN npm install -y -g demeteorizer
+#===========================Installing demeteorizer============================
+
+#===========================Expose Ports=======================================
+# MeteorJS
+EXPOSE 3000
+# HTTP and HTTPS
+EXPOSE 80
+EXPOSE 443
+#===========================Expose Ports=======================================
+
+#===========================Run Supervisord====================================
 COPY Supervisord/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN mkdir /var/supervisord
 CMD /usr/bin/supervisord
-#===========================Run Supervisord=====================================
+#===========================Run Supervisord====================================
