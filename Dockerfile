@@ -39,8 +39,6 @@ RUN apt-get install -y supervisor
 #===========================Installing Supervisord=============================
 
 #===========================Installing NodeJS==================================
-RUN add-apt-repository ppa:chris-lea/node.js
-RUN apt-get -y update
 RUN apt-get -y install nodejs
 #===========================Installing NodeJS==================================
 
