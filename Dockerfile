@@ -63,7 +63,7 @@ EXPOSE 443
 #===========================Create the application in meteorJS folder==========
 RUN cd /application/MeteorJS-Application && meteor create . && meteor remove insecure && meteor remove autopublish && demeteorizer 
 RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.26.1/install.sh 
-RUN cd /application/MeteorJS-Application/.demeteorized/bundle/programs/server && export PATH=$PATH:$HOME/.nvm/ && nvm install 0.10.40 && nvm use 0.10.40 && npm install
+RUN cd /application/MeteorJS-Application/.demeteorized/bundle/programs/server && export PATH=$PATH:/root/.nvm/ && nvm install 0.10.40 && nvm use 0.10.40 && npm install
 #===========================Create the application in meteorJS folder==========
 
 #===========================Run Supervisord====================================
