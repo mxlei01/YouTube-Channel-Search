@@ -1,7 +1,7 @@
 # Import tornado libraries
 import tornado.web
 # Import handlers and settings
-from handlers import TestRequestHandler, ChannelRequestHandler
+from handlers import ChannelRequestHandler
 from settings import settings
 # Import mongodb client for request handlers
 import mongo
