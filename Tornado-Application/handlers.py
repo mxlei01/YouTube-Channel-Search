@@ -20,23 +20,6 @@ import mongo, mongo_settings
 
 # handlers.py contains all the handlers that tornado application uses
 
-class TestRequestHandler(tornado.web.RequestHandler):
-    # Test handler is mapped to / in url.py
-    # to test, simply type localhost:8888/ in the web browser
-
-    def get(self):
-        # Usage:
-        #       Get request, used to test if the tornado application is responding
-        #       i.e. localhost:8888/
-        # Arguments:
-        #       None
-        # Return:
-        #       None
-
-        # Test response, users are not supposed to be here
-        response = {'success': 'true'}
-        self.write(response)
-
 class ChannelRequestHandler(tornado.web.RequestHandler):
     # Handler to receive channel names from the meteor js application
 
@@ -51,6 +34,26 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
 
         self.db = db
 
+    def getChannelAPI(self, channelName, channelID):
+        # Usage:
+        #       Since only channelName or channelID is populated, we will test
+        #       if channelName or channelID exists. If channelName exists, then
+        #       we will use youtube_api.getChannelAPI, else youtube_api.getChannels_withID
+        # Arguments:
+        #       channelName: name of a channel
+        #       channelID  : ID of a channel
+        # Return:
+        #       channelAPI : the API we are using to get our channel information
+
+        channelAPI = None
+
+        if channelID:
+            channelAPI = youtube_api.getChannels_withID % (channelID, settings.youtube_API_key, "")
+        else:
+            channelAPI = youtube_api.getChannels % (channelName, settings.youtube_API_key, "")
+
+        return channelAPI
+
     @gen.coroutine
     def get(self):
         # Usage:
@@ -63,18 +66,15 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
         # Return:
         #       None
 
-        # Get channel name
+        # Get channel name and channel ID (one of them are empty)
         channelName = self.get_argument('name')
         channelID = self.get_argument('id')
 
+        # Determine the API that we are going to use, whether it is primary channelName or channelID
+        getChannelAPI = self.getChannelAPI(channelName, channelID)
+
         # A flag to indicate if we have more channels to search for
         channelNextPageToken = True
-
-        # Build the first channelNameAPI string
-        getChannelAPI = youtube_api.getChannels % (channelName, settings.youtube_API_key, "")
-        # If there is channelID, then create it using channelID
-        if channelID:
-            getChannelAPI = youtube_api.getChannels_withID % (channelID, settings.youtube_API_key, "")
 
         # Loop through channels if nextPageToken exists
         while channelNextPageToken:
@@ -137,7 +137,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                                 result = yield mongo.insert_user_video_comments(self.db, topComment["id"],
                                                                                                 channelName,
                                                                                                 topComment["snippet"]["topLevelComment"]["snippet"]["authorDisplayName"],
-                                                                                                topComment["snippet"]["topLevelComment"]["snippet"]["textDisplay"],
+                                                                                              topComment["snippet"]["topLevelComment"]["snippet"]["textDisplay"],
                                                                                                 topComment["snippet"]["topLevelComment"]["snippet"]["updatedAt"],
                                                                                                 channelID["id"],
                                                                                                 video["id"]["videoId"],
@@ -290,7 +290,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                            "tempCollectionName:%s, queryKey:%s, queryResult:%s, result:%s"
                            % (str(mongo.mapper), str(mongo.reducer), mongo_settings.tempCollectionName, queryKey, queryResult, result))
 
-        # Create a cursur, this is different than in pymongo where result.find will give you a document
+        # Create a cursor, this is different than in pymongo where result.find will give you a document
         motorCursor = result.find()
 
         # For each of the mapReduceResult, which is now a dictionary of user, and list of videoId (string)

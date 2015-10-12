@@ -209,7 +209,9 @@ def insert_aggregate_user_video(db_client, userVideos, comment):
     result = None
     try:
         result = yield collection.update({"_id":userVideos["_id"]},
-                                         {"$addToSet":{comment["channelId"]:{"comment":comment["textDisplay"], "videoName":comment["title"], "time":comment["dateOfReply"]}}}, True)
+                                         {"$addToSet":{comment["channelId"]:{"comment":comment["textDisplay"],
+                                                                             "videoName":comment["title"],
+                                                                             "time":comment["dateOfReply"]}}}, True)
     except errors.DuplicateKeyError:
         pass
 
