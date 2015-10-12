@@ -11,7 +11,7 @@
     <p>B. user name : when you see a youtube URL that has user/someName, the "someName" is a username then use the user name search mode</p>
 6. Setup an API key in the settings.py file, you will need to go to the developer console in google, and select youtube data API.
 
-A Dockerfile that you can use to build the application once you have completed step 6. You can look at the automated build at: https://hub.docker.com/r/mxlei01/youtube-channel-search/ to see how it's setup.
+A Dockerfile that you can use to build the application, but you still need to complete step 6. You can look at the automated build at: https://hub.docker.com/r/mxlei01/youtube-channel-search/ to see how it's setup.
 
 <h1> Implementation Details: </h1>
 
