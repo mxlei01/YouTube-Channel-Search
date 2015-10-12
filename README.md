@@ -13,7 +13,7 @@
 
 A Dockerfile that you can use to build the application once you have completed step 6. You can look at the automated build at: https://hub.docker.com/r/mxlei01/youtube-channel-search/ to see how it's setup.
 
-<h1> Implementation Details: </2h>
+<h1> Implementation Details: </h1>
 
 <p> <b>MeteorJS</b> </p>
 <p> The main page in MeteorJS has a dropdown to search for youtube comment using a Channel Name or Channel ID. Either option sends a request to Tornado through a GET request. The Tornado application inserts data into MongoDB, and the MeteorJS application is updated with the results. </p>
