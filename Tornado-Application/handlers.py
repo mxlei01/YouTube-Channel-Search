@@ -280,7 +280,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
         # for "nextPageToken" later
         loopFlags = dict.fromkeys(["channelNextPageToken", "videosNextPageToken",
                                "commentThreadNextPageToken", "commentRepliesNextPageToken"], True)
-        print "Start"
+
         # Use the channelName, channelID, and loopFlags, find all the user comments, and insert them
         # into MongoDB
         yield self.getChannelData(channelName, channelID, loopFlags)

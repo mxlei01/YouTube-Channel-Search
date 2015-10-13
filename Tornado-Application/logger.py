@@ -15,7 +15,7 @@ def setupLogger():
     logger = logging.getLogger(__name__)
 
     # Set the level to INFO, so everything gets logged at INFO level
-    logger.setLevel(logging.FATAL)
+    logger.setLevel(logging.INFO)
 
     # Create a Rotating File Handler with the loggerFileName
     handler = logging.handlers.RotatingFileHandler(__name__+".log", maxBytes=2000000, backupCount=5)
