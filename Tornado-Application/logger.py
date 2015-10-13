@@ -1,5 +1,5 @@
-# Import logging libraries
-import logging, logging.handlers
+import logging
+import logging.handlers
 
 # logger.py is used to setup loggin support in a file
 
@@ -15,7 +15,7 @@ def setupLogger():
     logger = logging.getLogger(__name__)
 
     # Set the level to INFO, so everything gets logged at INFO level
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.FATAL)
 
     # Create a Rotating File Handler with the loggerFileName
     handler = logging.handlers.RotatingFileHandler(__name__+".log", maxBytes=2000000, backupCount=5)

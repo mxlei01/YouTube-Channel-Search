@@ -1,9 +1,6 @@
-# Import tornado libraries
 import tornado.web
-# Import handlers and settings
 from handlers import ChannelRequestHandler
 from settings import settings
-# Import mongodb client for request handlers
 import mongo
 
 # url.py is used to map between different urls to handlers, and also to set different settings

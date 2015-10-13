@@ -1,15 +1,10 @@
-# Import tornado libraries
 import tornado
 import tornado.ioloop
 import tornado.web
-# Import mongodb client
 import mongo
 import mongo_settings
-# Import URL mappings
 from url import application
-# Import logger
 import logger
-# Import tornado settings
 import settings
 
 # main.py is the main access point of the tornado app, to run the application, just run "python main.py"

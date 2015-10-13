@@ -1,6 +1,4 @@
-# Import pymongo
 import pymongo
-# Import tornado libraries
 from tornado import gen
 
 # db_settings.py includes the mongodb's settings

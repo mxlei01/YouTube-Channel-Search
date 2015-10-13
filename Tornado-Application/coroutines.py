@@ -1,4 +1,3 @@
-# Import Tornado Libraries
 from tornado.httpclient import AsyncHTTPClient
 from tornado import gen, escape
 

@@ -1,22 +1,14 @@
-# Import tornado libraries
 import tornado.web
 from tornado import gen
-# Import concurrent libraries
 from concurrent import futures
-# Import coroutines functions
 import coroutines
-# Import synchronous functions
 import synchronous
-# Import executurs for synchronous tasks
 import executors
-# Import youtube api
 import youtube_api
-# Import settings, so that we can get our youtube api key
 import settings
-# Import logging
 import logger
-# Import mongo functions
-import mongo, mongo_settings
+import mongo
+import mongo_settings
 
 # handlers.py contains all the handlers that tornado application uses
 
@@ -55,29 +47,24 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
         return channelAPI
 
     @gen.coroutine
-    def get(self):
+    def getChannelData(self, channelName, channelID, loopFlags):
         # Usage:
-        #       Get request, we will use youtube's api to get the channel information
-        #       which include channel information, videos, and user comments, and add the
-        #       data into mongodb
-        #       i.e. localhost:8888/
+        #       Since only channelName or channelID is populated, we will test
+        #       if channelName or channelID exists. If channelName exists, then
+        #       we will use youtube_api.getChannelAPI, else youtube_api.getChannels_withID
         # Arguments:
-        #       None
+        #       channelName: name of a channel
+        #       channelID  : ID of a channel
+        #       loopFlags  : a dictionary of flags that indicate whether if there are next set
+        #                    of json data whether channel/video/comment/commentThread
+        #                    that we need
         # Return:
         #       None
-
-        # Get channel name and channel ID (one of them are empty)
-        channelName = self.get_argument('name')
-        channelID = self.get_argument('id')
 
         # Determine the API that we are going to use, whether it is primary channelName or channelID
         getChannelAPI = self.getChannelAPI(channelName, channelID)
 
-        # A flag to indicate if we have more channels to search for
-        channelNextPageToken = True
-
-        # Loop through channels if nextPageToken exists
-        while channelNextPageToken:
+        while loopFlags["channelNextPageToken"]:
             # Fetch the data for the channel
             channelNameJson = yield coroutines.fetch_coroutine(getChannelAPI)
             logger.logger.info("channelName:%s, channelID:%s, getChannelAPI:%s, channelNameJson:%s" % (channelName, channelID, getChannelAPI, channelNameJson))
@@ -90,10 +77,10 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                     getVideosAPI = youtube_api.getVideos % (channelID["id"], settings.youtube_API_key, "")
 
                     # A flag to indicate that we have more pages to search for
-                    videosNextPageToken = True
+                    loopFlags["videosNextPageToken"] = True
 
                     # Loop through videos if nextPageToken exists
-                    while videosNextPageToken:
+                    while loopFlags["videosNextPageToken"]:
                         # Fetch the data for videos
                         videosJson = yield coroutines.fetch_coroutine(getVideosAPI)
                         logger.logger.info("getVideosAPI:%s, videosJson:%s" % (getVideosAPI, videosJson))
@@ -109,7 +96,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                     getCommentThreadAPI = youtube_api.getCommentThread % (video["id"]["videoId"], settings.youtube_API_key, "")
 
                                     # A flag to indicate that we have more comments to go through
-                                    commentThreadNextPageToken = True
+                                    loopFlags["commentThreadNextPageToken"] = True
 
                                     # Store the information of the video inside the video collection
                                     # Disabled since meteor cannot use composite keys
@@ -118,7 +105,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                     #                   % (channelID["id"], video["id"]["videoId"], video["snippet"]["title"], video["snippet"]["description"], video["snippet"]["publishedAt"], result))
 
                                     # Loop through next set of comments
-                                    while commentThreadNextPageToken:
+                                    while loopFlags["commentThreadNextPageToken"]:
                                         # Fetch the comments for a specific video
                                         commentThreadJson = yield coroutines.fetch_coroutine(getCommentThreadAPI)
                                         logger.logger.info("getCommentThreadAPI:%s, commentThreadJson:%s" % (getCommentThreadAPI, commentThreadJson))
@@ -175,10 +162,10 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                                     getCommentRepliesAPI = youtube_api.getCommentReplies % (topComment["id"], settings.youtube_API_key, "")
 
                                                     # A flag to indicate that we have more replies to go through
-                                                    commentRepliesNextPageToken = True
+                                                    loopFlags["commentRepliesNextPageToken"] = True
 
                                                     # Loop through each set of replies
-                                                    while commentRepliesNextPageToken:
+                                                    while loopFlags["commentRepliesNextPageToken"]:
                                                         # Fetch the replies for a specific comment
                                                         commentRepliesJson = yield coroutines.fetch_coroutine(getCommentRepliesAPI)
                                                         logger.logger.info("getCommentRepliesAPI:%s, commentRepliesJson:%s" % (getCommentRepliesAPI, commentRepliesJson))
@@ -231,7 +218,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                                             # If next page token does not exist, then we can stop the loop
                                                             if "nextPageToken" not in commentRepliesJson:
                                                                 # If the nextPageToken does not exist, then we can end the while loop
-                                                                commentRepliesNextPageToken = False
+                                                                loopFlags["commentRepliesNextPageToken"] = False
                                                             else:
                                                                 # If it does exist, then we build the getVideosAPI with the next page token to go the next set of videos
                                                                 getCommentRepliesAPI = youtube_api.getCommentReplies % (topComment["id"], settings.youtube_API_key, commentRepliesJson["nextPageToken"])
@@ -239,7 +226,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                         # If next page token does not exist, then we can stop the loop
                                         if "nextPageToken" not in commentThreadJson:
                                             # If the nextPageToken does not exist, then we can end the while loop
-                                            commentThreadNextPageToken = False
+                                            loopFlags["commentThreadNextPageToken"] = False
                                         else:
                                             # If it does exist, then we build the getVideosAPI with the next page token to go the next set of videos
                                             getCommentThreadAPI = youtube_api.getCommentThread % (video["id"]["videoId"], settings.youtube_API_key, commentThreadJson["nextPageToken"])
@@ -247,7 +234,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                             # If next page token does not exist, then we can stop the loop
                             if "nextPageToken" not in videosJson:
                                 # If the nextPageToken does not exist, then we can end the while loop
-                                videosNextPageToken = False
+                                loopFlags["videosNextPageToken"] = False
                             else:
                                 # If it does exist, then we build the getVideosAPI with the next page token to go the next set of videos
                                 getVideosAPI = youtube_api.getVideos % (channelID["id"], settings.youtube_API_key, videosJson["nextPageToken"])
@@ -255,7 +242,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                 # If next page token does not exist, then we can stop the loop
                 if "nextPageToken" not in channelNameJson:
                     # If the nextPageToken does not exist, then we can end the while loop
-                    channelNextPageToken = False
+                    loopFlags["channelNextPageToken"] = False
                 else:
                     # If it does exist, then we build the getChannelAPI with the next page token, we can go to the next set of channels
                     # Build the first channelNameAPI string
@@ -263,6 +250,40 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                     # If there is channelID, then create it using channelID
                     if channelID:
                         getChannelAPI = youtube_api.getChannels_withID % (channelID, settings.youtube_API_key, channelNameJson["nextPageToken"])
+
+
+    @gen.coroutine
+    def get(self):
+        # Usage:
+        #       We will use youtube's api to get the channel information
+        #       which include channel information, videos, and user comments, and add the
+        #       data into mongodb, and then does a map reduce to aggregate data into
+        #       specific users with all the videos they commented on.
+        # Arguments:
+        #       None
+        # Return:
+        #       None
+
+        # Get channel name and channel ID (one of them are empty)
+        channelName = self.get_argument('name')
+        channelID = self.get_argument('id')
+
+        # Setup neccessary flags we need to determine if there is a "next" page in the
+        # json response, since a json response can only be 50~100 independent items long,
+        # if a user have more than 50 videos, and in each comment, there are more than 50 comments
+        # then we need to loop through all the lists.
+        # channelNextPageToken        = if more than 50 channels are present
+        # videosNextPageToken         = if more than 50 videos are present per channel (above)
+        # commentThreadNextPageToken  = if more than 50 comment threads per video (above)
+        # commentRepliesNextPageToken = if more than 50 replies per comment thread (above)
+        # they are all setup as true, so that we can determine if there are more data by checking
+        # for "nextPageToken" later
+        loopFlags = dict.fromkeys(["channelNextPageToken", "videosNextPageToken",
+                               "commentThreadNextPageToken", "commentRepliesNextPageToken"], True)
+        print "Start"
+        # Use the channelName, channelID, and loopFlags, find all the user comments, and insert them
+        # into MongoDB
+        yield self.getChannelData(channelName, channelID, loopFlags)
 
         # Get the queryKey and queryResult depending on if the user has provided a
         # channelID.

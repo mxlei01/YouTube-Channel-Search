@@ -1,4 +1,3 @@
-# Import futures library
 from concurrent import futures
 
 # executors.py will create our threadpools, and this can be shared around different python files

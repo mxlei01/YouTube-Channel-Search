@@ -1,19 +1,10 @@
-# Import motor libraries
 import motor
-# Import mongodb settings
 import mongo_settings
-# Import exceptions
 import exceptions
 import tornado.ioloop
-# Import logger
 import logger
-# Import tornado libraries
 from tornado import gen
-# Import pymongo exceptions
 from pymongo import errors
-# Import pymongo
-import pymongo
-# Import bson code module for map reduce functions
 from bson.code import Code
 
 # mongo.py includes all the methods to access mongo db, and settings
@@ -137,12 +128,12 @@ def insert_user_video_comments(db_client, commentId, channelName, username, text
     #       channelName    : the channel name, which is not the channel ID
     #       username       : username who commented
     #       textDisplay    : the comment that the user posted
-    #       dateOfReply  : when the date was posted
+    #       dateOfReply    : when the date was posted
     #       channelId      : the channel ID of a channel
     #       videoId        : the video ID of a video
     #       title          : title of a video
     #       description    : description of a video
-    #       dateOfVideo  : date of the video uploaded
+    #       dateOfVideo    : date of the video uploaded
     # Return:
     #       result of the insertion
 
