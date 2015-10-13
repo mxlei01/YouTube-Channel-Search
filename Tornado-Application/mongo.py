@@ -57,68 +57,6 @@ def checkMongoDB(*args):
         logger.logger.info("Connected to MongoDB on address:" + str(mongo_settings.mongodb_address) + ", port:" + str(mongo_settings.mongodb_port))
 
 @gen.coroutine
-def insert_video(db_client, channelId, videoId, title, description, date):
-    # Usage:
-    #       Inserts a video into mongodb
-    # Arguments:
-    #       db_client   : the client of mongodb
-    #       channelId   : the channel ID of a channel
-    #       videoId     : the video ID of a video
-    #       title       : title of a video
-    #       description : description of a video
-    #       date        : date of the video uploaded
-    # Return:
-    #       result of insertion
-
-    # Get the collection: video, from database: youtube
-    collection = db_client.youtube.video
-
-    # Create a document from videoId, title, and description
-    # using channelId, and videoId as a primary key
-    document = {"_id":{"channelId":channelId, "videoId":videoId}, "title":title, "description":description, "date":date}
-
-    # Yields the insertion of the video, and tries to insert, which can fail
-    # since there might be already a videoId
-    result = None
-    try:
-        result = yield collection.insert(document)
-    except errors.DuplicateKeyError:
-        pass
-
-    raise gen.Return(result)
-
-@gen.coroutine
-def insert_user_comments(db_client, videoId, commentId, username, textDisplay, date):
-    # Usage:
-    #       Inserts a user comment into mongodb
-    # Arguments:
-    #       db_client   : the client of mongodb
-    #       commentId   : the comment ID of a comment
-    #       username    : username who commented
-    #       textDisplay : the comment that the user posted
-    #       date        : when the date was posted
-    #       videoId     : ID of the video
-    # Return:
-    #       result of insertion
-
-    # Get the collection: user, from database: youtube
-    collection = db_client.youtube.user
-
-    # Create a document from videoId, title, and description
-    # using channelId, and videoId as a primary key
-    document = {"_id":{"videoId":videoId, "commentId":commentId}, "username":username, "textDisplay":textDisplay, "date":date}
-
-    # Yields the insertion of the video, and tries to insert, which can fail
-    # since there might be already a videoId
-    result = None
-    try:
-        result = yield collection.insert(document)
-    except errors.DuplicateKeyError:
-        pass
-
-    raise gen.Return(result)
-
-@gen.coroutine
 def insert_user_video_comments(db_client, commentId, channelName, username, textDisplay, dateOfReply, channelId, videoId, title, description, dateOfVideo):
     # Usage:
     #       Inserts a user comment into mongodb
