@@ -12,7 +12,7 @@ from bson.code import Code
 # setup a mongodb client
 client = motor.MotorClient(mongo_settings.mongodb_address, mongo_settings.mongodb_port)
 
-# reducer code to append all the values aggregated into a stringified version of
+# reducer javascript code to append all the values aggregated into a stringified version of
 # an array, since map reduce in mongodb cannot return an array
 reducer = Code("""
                 function (key, values) {
@@ -24,7 +24,7 @@ reducer = Code("""
                 }
                 """)
 
-# mapper code to map username to videoId, note that there can be multiple videoId
+# mapper javascript code to map username to videoId, note that there can be multiple videoId
 # hence we need to use the reducer to reduce the multiple videoId's to a single username
 mapper = Code("""
                function () {

@@ -124,7 +124,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                     # set this back to True, then it will not find the next videos
                                     loopFlags["commentThreadNextPageToken"] = True
 
-                                    # Loop through next set of comments if results > 50,
+                                    # Loop through next set of comments if results > 100,
                                     # or if we are at the first iteration
                                     while loopFlags["commentThreadNextPageToken"]:
                                         # Fetch the comments for a specific video, we will feed this into a coroutine
@@ -236,7 +236,8 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                                                                         video["snippet"]["publishedAt"],result))
 
 
-                                                            # If next page token does not exist, then we can stop the loop
+                                                            # If next page token does not exist, means that there are no more replies for comment
+                                                            # then we can stop the loop
                                                             if "nextPageToken" not in commentRepliesJson:
                                                                 # If the nextPageToken does not exist, then we can end the while loop
                                                                 loopFlags["commentRepliesNextPageToken"] = False
@@ -244,7 +245,8 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                                                 # If it does exist, then we build the getCommentRepliesAPI with the next page token to go the next set of top level replies
                                                                 getCommentRepliesAPI = youtube_api.getCommentReplies % (topComment["id"], settings.youtube_API_key, commentRepliesJson["nextPageToken"])
 
-                                        # If next page token does not exist, then we can stop the loop
+                                        # If next page token does not exist, means that there are no more comments for the video
+                                        # then we can stop the loop
                                         if "nextPageToken" not in commentThreadJson:
                                             # If the nextPageToken does not exist, then we can end the while loop
                                             loopFlags["commentThreadNextPageToken"] = False
@@ -252,7 +254,8 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                             # If it does exist, then we build the getCommentThreadAPI with the next page token to go the next set of top level comments
                                             getCommentThreadAPI = youtube_api.getCommentThread % (video["id"]["videoId"], settings.youtube_API_key, commentThreadJson["nextPageToken"])
 
-                            # If next page token does not exist, then we can stop the loop
+                            # If next page token does not exist, means that there are no more videos in a channel left
+                            # then we can stop the loop
                             if "nextPageToken" not in videosJson:
                                 # If the nextPageToken does not exist, then we can end the while loop
                                 loopFlags["videosNextPageToken"] = False
@@ -260,7 +263,8 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                 # If it does exist, then we build the getVideosAPI with the next page token to go the next set of videos
                                 getVideosAPI = youtube_api.getVideos % (channelID["id"], settings.youtube_API_key, videosJson["nextPageToken"])
 
-                # If next page token does not exist, then we can stop the loop
+                # If next page token does not exist, means that there are no more channels left
+                # then we can stop the loop
                 if "nextPageToken" not in channelNameJson:
                     # If the nextPageToken does not exist, then we can end the while loop
                     loopFlags["channelNextPageToken"] = False
@@ -268,7 +272,89 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                     # If it does exist, then we build the getChannelAPI with the next page token, we can go to the next set of channels
                     getChannelAPI = self.getChannelAPI(channelName, channelID)
 
+    def getQueryKeyAndResult(self, channelName, channelID):
+        # Usage:
+        #       This will return a key and value to aggregate videos under a user with
+        #       a specific channelName or channelID
+        # Arguments:
+        #       channelName : channel's Name
+        #       channelID   : channel's ID
+        # Return:
+        #       tuple of either ("channelID", channelID) or ("channelName", channelName)
 
+        # Determine if channelID exists provided by the user
+        if channelID:
+            return ("channelID", channelID)
+        else:
+            return ("channelName", channelName)
+
+    @gen.coroutine
+    def aggregateUserVideos(self, queryKey, queryResult):
+        # Usage:
+        #       We need to query the data for videos and users, we can do this by mapping all
+        #       videos with username, and videoID, and then aggregating all the same key (user names)
+        #       to videoID. We can filter out the videos that do not fall under a specific Channel Name
+        #       or channel ID by using query={queryKey:queryResult}.
+        #       The result of the data would look like:
+        #       _id:Username
+        # 	        {Video1, channelName/channelID}
+        #		        Comments
+        #		        Comments
+        #	        {Video2, channelName/channelID}
+        #		        Comments
+        #		        Comments
+        #	        {Video3, channelName/channelID}
+        #		        Comments
+        # Arguments:
+        #       queryKey    : key of query to query the comment table against to get
+        #                     only all videos under a specific channel name or channel ID.
+        #                     the variable must only contain the string "channelName" or "channelID"
+        #       queryResult : value of the channel name or channel ID
+        # Return:
+        #       None
+
+        # We will get all the users (people who made comments) and their videos of what they commented on.
+        # Data will look like:
+        #   user_name_1 :
+        #           video1
+        #           video2
+        #   user_name_2 :
+        #           video1
+        #           video3
+        # Later using this data, we can get all the comments they made under a specific video
+        result = yield mongo.aggregate_user_videoId(mongo.client, mongo.mapper, mongo.reducer, mongo_settings.tempCollectionName, queryKey, queryResult)
+        logger.logger.info("aggregate_user_videoId, mongo.mapper:%s, mongo.reducer:%s, "
+                           "tempCollectionName:%s, queryKey:%s, queryResult:%s, result:%s"
+                           % (str(mongo.mapper), str(mongo.reducer), mongo_settings.tempCollectionName, queryKey, queryResult, result))
+
+        # Create a cursor, this is different than in pymongo where result.find will give you a document
+        motorCursor = result.find()
+
+        # For each of the mapReduceResult, which is now a dictionary of user, and list of videoId (string)
+        while (yield motorCursor.fetch_next):
+            # Get the next object from motorCursor, which is from fetch_next, this will now
+            # be a dictionary form of {"_id":"username", "value":"video1, video2, video3"}
+            mapReduceResult = motorCursor.next_object()
+
+            # We will get each of the videoId when we split the string of videoId's, and we cast a
+            # set in order to make the list unique, since a user can comment on the same videos
+            for videoId in set(mapReduceResult["value"].split(',')):
+                # For each of the find all the comments that a user commented inside a unique videoId
+                # which means all the comments in a video. This is able to find multiple comments
+                # a user commented inside a video
+
+                # Get the cursor to find the comments according to videoId and userName
+                commentsMotorCursur = mongo.client.youtube.comments.find({"videoId":videoId, "username":mapReduceResult["_id"]})
+
+                # Fetch the next comments
+                while (yield commentsMotorCursur.fetch_next):
+                    # Get the next comment
+                    comment = commentsMotorCursur.next_object()
+
+                    # Add the next comment into user_video collection
+                    result = yield mongo.insert_aggregate_user_video(mongo.client, mapReduceResult, comment)
+                    logger.logger.info("insert_aggregate_user_video, mapReduceResult:%s, comment:%s, result:%s"
+                                       % (mapReduceResult, comment, result))
     @gen.coroutine
     def get(self):
         # Usage:
@@ -291,75 +377,28 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
         # then we need to loop through all the lists.
         # channelNextPageToken        = if more than 50 channels are present
         # videosNextPageToken         = if more than 50 videos are present per channel (above)
-        # commentThreadNextPageToken  = if more than 50 comment threads per video (above)
-        # commentRepliesNextPageToken = if more than 50 replies per comment thread (above)
+        # commentThreadNextPageToken  = if more than 100 comment threads per video (above)
+        # commentRepliesNextPageToken = if more than 100 replies per comment thread (above)
         # they are all setup as true, so that we can determine if there are more data by checking
         # for "nextPageToken" later
         loopFlags = dict.fromkeys(["channelNextPageToken", "videosNextPageToken",
-                               "commentThreadNextPageToken", "commentRepliesNextPageToken"], True)
+                                   "commentThreadNextPageToken", "commentRepliesNextPageToken"], True)
 
         # Use the channelName, channelID, and loopFlags, find all the user comments, and insert them
         # into MongoDB
         yield self.getChannelData(channelName, channelID, loopFlags)
 
         # Get the queryKey and queryResult depending on if the user has provided a
-        # channelID.
-        channelName = self.get_argument('name')
-        channelID = self.get_argument('id')
-        queryKey = "channelName"
-        queryResult = channelName
-        if channelID:
-            queryKey = "channelId"
-            queryResult = channelID
+        # channelID. This will be used to aggregate based on channel name or channel ID, because
+        # the user can search either by channel name or channel ID, and we want to aggregate one
+        # of them.
+        queryKey, queryResult = self.getQueryKeyAndResult(channelName, channelID)
 
         # The next part of the task is to aggregate the data, where we want to get all the videos
-        # in a specific channel that matches to a username
-        # _id:Username
-        # 	{Video1, channelID}
-        #		Comments
-        #		Comments
-        #	{Video1, channelID}
-        #		Comments
-        #		Comments
-        #	{Video1, channelID}
-        #		Comments
-        result = yield mongo.aggregate_user_videoId(mongo.client, mongo.mapper, mongo.reducer, mongo_settings.tempCollectionName, queryKey, queryResult)
-        logger.logger.info("aggregate_user_videoId, mongo.mapper:%s, mongo.reducer:%s, "
-                           "tempCollectionName:%s, queryKey:%s, queryResult:%s, result:%s"
-                           % (str(mongo.mapper), str(mongo.reducer), mongo_settings.tempCollectionName, queryKey, queryResult, result))
-
-        # Create a cursor, this is different than in pymongo where result.find will give you a document
-        motorCursor = result.find()
-
-        # For each of the mapReduceResult, which is now a dictionary of user, and list of videoId (string)
-        while (yield motorCursor.fetch_next):
-            # Get the next object from motorCursur
-            mapReduceResult = motorCursor.next_object()
-
-            # We will get each of the videoId when we split the string of videoId's, and we cast a
-            # set in order to make the list unique, since a user can comment on the same videos
-            for videoId in set(mapReduceResult["value"].split(',')):
-                # For each of the find all the comments that a user commented inside a unique videoId
-                # which means all the comments in a video. This is able to find multiple comments
-                # a user commented inside a video
-
-                # Get the cursor to find the comments according to videoId and userName
-                commentsMotorCursur = mongo.client.youtube.comments.find({"videoId":videoId, "username":mapReduceResult["_id"]})
-
-                # Fetch the next comments
-                while (yield commentsMotorCursur.fetch_next):
-                    # Get the next comment
-                    comment = commentsMotorCursur.next_object()
-
-                    # Add the next comment into user_video collection
-                    result = yield mongo.insert_aggregate_user_video(mongo.client, mapReduceResult, comment)
-                    logger.logger.info("insert_aggregate_user_video, mapReduceResult:%s, comment:%s, result:%s"
-                                       % (mapReduceResult, comment, result))
+        # in a specific channel that matches to a username.
+        yield self.aggregateUserVideos(queryKey, queryResult)
 
         # Returns a JSON query response to the user indicating that the
         # search is done
-        response = {'success': 'true',
-                    "results": [{"title": "Search Done!"}]}
-
-        # Send the json response back to the web browser
-        self.write(response)
+        self.write({'success': 'true',
+                    "results": [{"title": "Search Done!"}]})
