@@ -1,29 +1,3 @@
-// Create Mongo Collection: comments
-// comments:
-//      _id = id (of comments)
-//      channelName
-//      Username
-//      textDisplay
-//      Date_Of_Comment
-//      channelID
-//      videold
-//      Title
-//      Description
-//      Date_Of_Video
-comments = new Mongo.Collection("comments");
-
-//Create Mongo Collection: user_video
-// _id:Username
-//	{Video1, channelID}
-//		Comments
-//		Comments
-//	{Video1, channelID}
-//		Comments
-//		Comments
-//	{Video1, channelID}
-//		Comments
-user_videos = new Mongo.Collection("user_video");
-
 // Code ran at the server
 if (Meteor.isServer)
 {
