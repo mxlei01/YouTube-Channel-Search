@@ -1,36 +1,3 @@
-// Code ran at the server
-if (Meteor.isServer)
-{
-    Meteor.publish("comments", function (search, type)
-    {
-        // If type == 1, then we will search using channelID, and
-        // if type == 0, then we will search using channelName
-        if (type == "1")
-        {
-            return comments.find({channelId : search});
-        }
-        else if (type == "0")
-        {
-            // Need to make sure that the channelName is not empty, because it is possible that
-            // a collection have some rows that does not have a channel name, and only channel ID
-            // and the user selected to search by channel name, but have not typed in any channel name
-            // it will actually accidentally search for channel name that are empty, and will return
-            // a lot of data
-            if (search != "")
-            {
-                return comments.find({channelName: search});
-            }
-        }
-    });
-    Meteor.publish("user_video", function (channelId)
-    {
-        // Create a search document, and only find the channelID's that exist under every user
-        searchDocument = {};
-        searchDocument[channelId] = { '$exists' : 1 };
-        return user_videos.find(searchDocument);
-    });
-}
-
 // Code ran at the client
 if (Meteor.isClient)
 {
@@ -83,6 +50,8 @@ if (Meteor.isClient)
             },
             user_videos: function()
             {
+                // Returns each user's comment's for each video, users[channelId] is an array
+                // of user comments.
                 array = [];
                 user_videos.find().forEach(function(users)
                 {
