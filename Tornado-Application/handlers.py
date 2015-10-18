@@ -284,7 +284,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
 
         # Determine if channelID exists provided by the user
         if channelID:
-            return ("channelID", channelID)
+            return ("channelId", channelID)
         else:
             return ("channelName", channelName)
 
@@ -355,6 +355,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                     result = yield mongo.insert_aggregate_user_video(mongo.client, mapReduceResult, comment)
                     logger.logger.info("insert_aggregate_user_video, mapReduceResult:%s, comment:%s, result:%s"
                                        % (mapReduceResult, comment, result))
+
     @gen.coroutine
     def get(self):
         # Usage:
