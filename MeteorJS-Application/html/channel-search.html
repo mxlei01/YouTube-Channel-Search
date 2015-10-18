@@ -1,0 +1,103 @@
+<head>
+    <title>User/Channel Search</title>
+
+    <!-- Import jQuery, and Semantic-UI's JS and CSS files -->
+    <link rel="stylesheet" type="text/css" href="https://oss.maxcdn.com/semantic-ui/2.1.4/semantic.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://oss.maxcdn.com/semantic-ui/2.1.4/semantic.min.js"></script>
+</head>
+
+<body>
+    <!-- top menu bar -->
+    <div class="ui pointing menu">
+        <!-- chosen the dropdown and search to appear on the left -->
+        <div class="left menu">
+            <!-- dropdown and search belongs to one item -->
+            <div class="item">
+                <!-- the type of dropdown is a selection type -->
+                <div class="ui selection dropdown">
+                    <input name="type" type="hidden" value="">
+                    <i class="dropdown icon"></i>
+                    <div class="default text">Search Type</div>
+                    <!-- let the user change search type between channel ID or user name-->
+                    <div class="menu">
+                        <div class="item" data-value="1">Channel ID</div>
+                        <div class="item" data-value="0">User Name</div>
+                    </div>
+                </div>
+                <!-- search menu for the user to type in text so that we can execute our search based
+                     on the text -->
+                <!-- Note: Use ui transparent loading icon input to show a loading icon-->
+                <div class="ui search">
+                    <div class="ui left icon input">
+                        <input class="prompt" type="text" placeholder="Search Youtube" value="">
+                        <i class="icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- shows the user a large header for the channel ID or the User name typed in -->
+    <div class="ui segment">
+        <h1 id="userSearch"></h1>
+    </div>
+    <!-- shows the user some statistics returned by the search -->
+    <div class="ui segment">
+        <div class="ui three statistics">
+            <!-- Shows the user the number of unique users -->
+            <div class="statistic">
+                <div class="value">
+                    {{uniqueVideosCount}}
+                </div>
+                <div class="label">
+                    Videos
+                </div>
+            </div>
+            <!-- Shows the user the number of unique videos -->
+            <div class="statistic">
+                <div class="value">
+                    {{uniqueUserCount}}
+                </div>
+                <div class="label">
+                    Users
+                </div>
+            </div>
+            <!-- Shows the user the number of comments -->
+            <div class="statistic">
+                <div class="value">
+                    {{commentsCount}}
+                </div>
+                <div class="label">
+                    Comments
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="ui segment">
+        {{#each user_videos}}
+            {{> user_video}}
+        {{/each}}
+    </div>
+</body>
+
+<!-- templated used to display user comments and videos -->
+<template name="user_video">
+    <div class="html ui top attached segment">
+        <div class="ui comments">
+            <h3 class="ui dividing header">{{_id}}</h3>
+            <div class="comment">
+                {{#each videos}}
+                <div class="content">
+                    <a class="author">{{videoName}}</a>
+                    <div class="metadata">
+                        <span class="date">{{time}}</span>
+                    </div>
+                    <div class="text">
+                        {{comment}}
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+</template>
