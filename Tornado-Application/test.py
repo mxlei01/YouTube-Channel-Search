@@ -5,7 +5,7 @@ import settings
 import json
 from tornado.testing import AsyncTestCase
 
-class Test_APIs(AsyncTestCase):
+class Test_Youtube_APIs(AsyncTestCase):
     @tornado.testing.gen_test
     def test_getChannels_withID(self):
         # Tests the getChannels_withID API with channel ID
