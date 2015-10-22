@@ -30,7 +30,6 @@ reportlab==3.0
 requests==2.2.1
 service-identity==14.0.0
 six==1.5.2
-system-service==0.1.6
 tornado==4.2.1
 unity-lens-photos==1.0
 urllib3==1.7.1
