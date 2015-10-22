@@ -1,8 +1,4 @@
 Pillow==2.3.0
-Twisted==15.2.1
-Twisted-Core==13.2.0
-Twisted-Web==13.2.0
-adium-theme-ubuntu==0.3.4
 apt-xapian-index==0.45
 argparse==1.2.1
 backports.ssl-match-hostname==3.4.0.2
