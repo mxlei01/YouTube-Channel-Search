@@ -1,4 +1,3 @@
-PAM==0.4.2
 Pillow==2.3.0
 Twisted==15.2.1
 Twisted-Core==13.2.0
