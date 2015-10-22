@@ -13,7 +13,7 @@
 
 A Dockerfile that you can use to build the application, but you still need to complete step 6. You can look at the automated build at: https://hub.docker.com/r/mxlei01/youtube-channel-search/ to see how it's setup.
 
-A .travis.yaml file is included, and a push to the repository will run a few tests, for example, testing if the youtube API in the tornado application works, and return expected values.
+A .travis.yaml file is included, and a push to the repository will run a few tests, for example, testing if the youtube API in the tornado application works, and return expected values. Build is located at: https://travis-ci.org/mxlei01/YouTube-Channel-Search.
 
 <h1> Implementation Details: </h1>
 
