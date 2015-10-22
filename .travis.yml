@@ -1,0 +1,6 @@
+language: python
+python:
+  - "2.7"
+install:
+  - pip install -r Tornado-Application/requirements.txt
+script: Tornado-Application/python -m tornado.test.runtests test
