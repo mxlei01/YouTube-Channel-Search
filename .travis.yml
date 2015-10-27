@@ -9,10 +9,18 @@ python:
   - "2.7"
 
 before_install:
-  - docker build -t  mxlei01/test_travis_repo .
+  - docker build -t  mxlei01/youtube-channel-search-travis .
 
-script: docker run --net="host" mxlei01/test_travis_repo /bin/sh -c "cd /application/Tornado-Application && python -m tornado.test.runtests test"
+script: docker run --net="host" mxlei01/youtube-channel-search-travis /bin/sh -c "cd /application/Tornado-Application && python -m tornado.test.runtests test"
 
 after_success:
 - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-- docker push mxlei01/test_travis_repo
+- docker push mxlei01/youtube-channel-search-travis
+
+notifications:
+  webhooks:
+    urls:
+      - https://api.opsgenie.com/v1/json/travisci?apiKey=5a20d401-9c4b-4083-b22d-afeb70aad486
+    on_success: always # default: always
+    on_failure: always # default: always
+    on_start: always # default: always
