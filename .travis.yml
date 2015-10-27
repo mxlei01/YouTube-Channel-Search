@@ -1,17 +1,17 @@
 language: python
+
 sudo: required
+
 services:
   - docker
+
 python:
   - "2.7"
-install:
-  - pip install -r Tornado-Application/requirements.txt
 
 before_install:
   - docker build -t  mxlei01/test_travis_repo .
-  - docker ps -a
 
-script: sudo docker run --net="host" mxlei01/test_travis_repo /bin/sh -c "cd /application/Tornado-Application && python -m tornado.test.runtests test"
+script: docker run --net="host" mxlei01/test_travis_repo /bin/sh -c "cd /application/Tornado-Application && python -m tornado.test.runtests test"
 
 after_success:
 - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
