@@ -10,8 +10,8 @@ services:
   - docker
 
 notifications:
-    webhooks: 
-  - https://api.opsgenie.com/v1/json/travisci?apiKey=5a20d401-9c4b-4083-b22d-afeb70aad486
+  webhooks:
+    - https://api.opsgenie.com/v1/json/travisci?apiKey=5a20d401-9c4b-4083-b22d-afeb70aad486
 
 before_install:
   - docker build -t  mxlei01/youtube-channel-search-travis .
