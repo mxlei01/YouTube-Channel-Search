@@ -5,6 +5,14 @@ sudo: required
 services:
   - docker
 
+notifications:
+  webhooks:
+    urls:
+      - https://api.opsgenie.com/v1/json/travisci?apiKey=5a20d401-9c4b-4083-b22d-afeb70aad486
+    on_success: always
+    on_failure: always
+    on_start: always
+
 before_install:
   - docker build -t  mxlei01/youtube-channel-search-travis .
 
@@ -13,11 +21,3 @@ script: docker run --net="host" mxlei01/youtube-channel-search-travis /bin/sh -c
 after_success:
 - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
 - docker push mxlei01/youtube-channel-search-travis
-
-notifications:
-  webhooks:
-    urls:
-      - https://api.opsgenie.com/v1/json/travisci?apiKey=5a20d401-9c4b-4083-b22d-afeb70aad486
-    on_success: always
-    on_failure: always
-    on_start: always
