@@ -11,4 +11,4 @@ before_install:
   - docker build -t  mxlei01/test_travis_repo .
   - docker ps -a
 
-script: sudo docker run --net="host" mxlei01/youtube-channel-search /bin/sh -c "cd /application/Tornado-Application && python -m tornado.test.runtests test"
+script: cd /application/Tornado-Application && python -m tornado.test.runtests test
