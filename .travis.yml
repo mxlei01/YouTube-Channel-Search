@@ -1,6 +1,14 @@
 language: python
+sudo: required
+services:
+  - docker
 python:
   - "2.7"
 install:
   - pip install -r Tornado-Application/requirements.txt
-script: cd Tornado-Application && python -m tornado.test.runtests test
+
+before_install:
+  - docker build -t  mxlei01/test_travis_repo .
+  - docker ps -a
+
+script: sudo docker run --net="host" mxlei01/youtube-channel-search /bin/sh -c "cd /application/Tornado-Application && python -m tornado.test.runtests test"
