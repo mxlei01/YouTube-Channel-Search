@@ -2,25 +2,28 @@ language: python
 
 branches:
   only:
-    - master
+  - master
 
 sudo: required
 
 services:
-  - docker
+- docker
 
 notifications:
   webhooks:
     urls:
-      - https://api.opsgenie.com/v1/json/travisci?apiKey=5a20d401-9c4b-4083-b22d-afeb70aad486
-    on_success: always # default: always
-    on_failure: always # default: always
-    on_start: never # default: always
+    - https://api.opsgenie.com/v1/json/travisci?apiKey=5a20d401-9c4b-4083-b22d-afeb70aad486
+    on_success: always
+    on_failure: always
+    on_start: never
+  slack:
+    secure: Brt+f9fBnakPmCWE+Is9OKvymFMjTDFD1ir1/27ufcZIBhS43hDe193/3fDAVWp5C7mrY6ZxmxAeeE/iF7RJv/br6myqeYRGCyR+tw7tr4n07U31RZRjTEnzEq80359mLOyiHcntxCwsULZ1CPtO5w6FDWdZNW5GpagF8kstCOJhuI7JlzJPqueX19ZqSTA8hGK+YfQcXy7Zd75osHcqlixM759Fl3CJQM6XTr1M+NdihPq1YvTm2SMQr+mPeKL7iuyb01MBu2LvTqiAfFMdOGmLoo5/eKheudbr+feH3fELOjW1K8stx1yOqa9DAggGrM0844W+XL6Eif/mjKMnaAIeOvSm+3iALVj7cVnwUjOFTiqn7aAkEk9+lWxa0l7kLtSkV7hSk0EY1gjADwbiVc3w0AIdA44ES3nZq3nAJGQnxPq4xlaf0etGfHfNsbN5YoRunxw0FbCf94Xy4OawEysx2t2CRm2yjqLpV3XqNWE34aMuSvuwD8omaSTpYVzB1tWXWqJcjoLSMzZ7BO5SvNg/v0agxreNv4ZbFVL8JlBGAcCm2C35fGNqE0ANSO+UPEqUIjcL0295fISDq2/PafbSmZ19SCXtSif+d0o5YH4YhwVvZjFkZHZNZauzmTvWswy2IDTjUTfuZTxOecIfrmIhOLuS2EgDemjoTheHOQM=
 
 before_install:
-  - docker build -t  mxlei01/youtube-channel-search-travis .
+- docker build -t  mxlei01/youtube-channel-search-travis .
 
-script: docker run --net="host" mxlei01/youtube-channel-search-travis /bin/sh -c "cd /application/Tornado-Application && python -m tornado.test.runtests test"
+script: docker run --net="host" mxlei01/youtube-channel-search-travis /bin/sh -c "cd
+  /application/Tornado-Application && python -m tornado.test.runtests test"
 
 after_success:
 - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
