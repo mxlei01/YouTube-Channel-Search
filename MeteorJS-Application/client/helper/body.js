@@ -17,10 +17,13 @@ Template.body.helpers
             {
                 userVideoSubscribe.stop();
             } catch(err) {}
-            userVideoSubscribe = Meteor.subscribe("user_video", channelId);
+            try
+            {
+                userVideoSubscribe = Meteor.subscribe("user_video", channelId);
+            } catch(err) {}
 
             // Returns the total count of comments for the channel
-            return comments.find().count()
+            return comments.find().count();
         },
         uniqueUserCount: function()
         {
