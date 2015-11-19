@@ -1,16 +1,13 @@
 import tornado.web
+import mongo.mongo_client as mongo
 from tornado import gen
-from concurrent import futures
-import coroutines
-import synchronous
-import executors
-import youtube_api
-import settings
-import logger
-import mongo
-import mongo_settings
+from helper_coroutines import http_client
+from loggers import logger
+from mongo import mongo_settings
+from router import router_settings
+from youtube import youtube_api
 
-# handlers.py contains all the handlers that tornado application uses
+# channel_request_handler.py contains all the handlers that tornado application uses
 
 class ChannelRequestHandler(tornado.web.RequestHandler):
     # Handler to receive channel names from the meteor js application
@@ -42,9 +39,9 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
         # it will throw an error
         channelAPI = None
         if channelID:
-            channelAPI = youtube_api.getChannels_withID % (channelID, settings.youtube_API_key, "")
+            channelAPI = youtube_api.getChannels_withID % (channelID, router_settings.youtube_API_key, "")
         else:
-            channelAPI = youtube_api.getChannels % (channelName, settings.youtube_API_key, "")
+            channelAPI = youtube_api.getChannels % (channelName, router_settings.youtube_API_key, "")
 
         return channelAPI
 
@@ -76,7 +73,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
         while loopFlags["channelNextPageToken"]:
             # Using the getChannelAPI we created previously, we will feed this into a coroutine, and
             # the asyncHTTPClient will help us to get the results asynchronously
-            channelNameJson = yield coroutines.fetch_coroutine(getChannelAPI)
+            channelNameJson = yield http_client.fetch_coroutine(getChannelAPI)
             logger.logger.info("channelName:%s, channelID:%s, getChannelAPI:%s, channelNameJson:%s" % (channelName, channelID, getChannelAPI, channelNameJson))
 
             # Sometimes a fetch can fail, and return None
@@ -88,7 +85,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                     # Create a getVideos api string, this will essentialy let us to get all the videoID's
                     # associated within a channel, and videoID's are unique strings, and we will use
                     # the videoID's to get comments later
-                    getVideosAPI = youtube_api.getVideos % (channelID["id"], settings.youtube_API_key, "")
+                    getVideosAPI = youtube_api.getVideos % (channelID["id"], router_settings.youtube_API_key, "")
 
                     # A flag to indicate that we have more pages to search for, we will need to set this
                     # for every channel, since if this is not re-initialized to True, it will not
@@ -100,7 +97,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                     while loopFlags["videosNextPageToken"]:
                         # Using the getVideosAPI that we created to get videoID's, we would feed this
                         # into a coroutine to grab the results asynchronously
-                        videosJson = yield coroutines.fetch_coroutine(getVideosAPI)
+                        videosJson = yield http_client.fetch_coroutine(getVideosAPI)
                         logger.logger.info("getVideosAPI:%s, videosJson:%s" % (getVideosAPI, videosJson))
 
                         # Sometimes a fetch can fail, and return None
@@ -117,7 +114,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                     # video's top level comments. These are all the comments directly commenting the video itself, and
                                     # there's another type which are reply comments, which are comments replied to a top level comment.
                                     # We can also get the comment username, comment text, and comment date.
-                                    getCommentThreadAPI = youtube_api.getCommentThread % (video["id"]["videoId"], settings.youtube_API_key, "")
+                                    getCommentThreadAPI = youtube_api.getCommentThread % (video["id"]["videoId"], router_settings.youtube_API_key, "")
 
                                     # A flag to indicate that we have more comments to go through, we would need to re-intialized this
                                     # everytime we get comment threads for a video, because when we get to the next video, if we don't
@@ -129,7 +126,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                     while loopFlags["commentThreadNextPageToken"]:
                                         # Fetch the comments for a specific video, we will feed this into a coroutine
                                         # to get us json data for comments in a specific videoID asynchronously
-                                        commentThreadJson = yield coroutines.fetch_coroutine(getCommentThreadAPI)
+                                        commentThreadJson = yield http_client.fetch_coroutine(getCommentThreadAPI)
                                         logger.logger.info("getCommentThreadAPI:%s, commentThreadJson:%s" % (getCommentThreadAPI, commentThreadJson))
 
                                         # Sometimes a fetch can fail, and return None
@@ -144,7 +141,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                                 result = yield mongo.insert_user_video_comments(self.db, topComment["id"],
                                                                                                 channelName,
                                                                                                 topComment["snippet"]["topLevelComment"]["snippet"]["authorDisplayName"],
-                                                                                              topComment["snippet"]["topLevelComment"]["snippet"]["textDisplay"],
+                                                                                                topComment["snippet"]["topLevelComment"]["snippet"]["textDisplay"],
                                                                                                 topComment["snippet"]["topLevelComment"]["snippet"]["updatedAt"],
                                                                                                 channelID["id"],
                                                                                                 video["id"]["videoId"],
@@ -163,7 +160,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                                                    "video[snippet][description]:%s, "
                                                                    "video[snippet][publishedAt]:%s, "
                                                                    "result:%s"
-                                                                    % (topComment["id"],
+                                                                   % (topComment["id"],
                                                                         channelName,
                                                                         topComment["snippet"]["topLevelComment"]["snippet"]["authorDisplayName"],
                                                                         topComment["snippet"]["topLevelComment"]["snippet"]["textDisplay"],
@@ -180,7 +177,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                                     # Create a getCommentReplies api string, this will also give us the same information
                                                     # as top level comment for users, such as their username, user comment, and date
                                                     # but aimed at replies instead of top level comments
-                                                    getCommentRepliesAPI = youtube_api.getCommentReplies % (topComment["id"], settings.youtube_API_key, "")
+                                                    getCommentRepliesAPI = youtube_api.getCommentReplies % (topComment["id"], router_settings.youtube_API_key, "")
 
                                                     # A flag to indicate that we have more replies to go through, again, we need to
                                                     # initialize this at the start to True for every top level comment replies we want to find
@@ -191,7 +188,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                                     while loopFlags["commentRepliesNextPageToken"]:
                                                         # Fetch the replies for a specific comment by feeding this URL into
                                                         # a coroutine, so that we can fetch the data asynchronously
-                                                        commentRepliesJson = yield coroutines.fetch_coroutine(getCommentRepliesAPI)
+                                                        commentRepliesJson = yield http_client.fetch_coroutine(getCommentRepliesAPI)
                                                         logger.logger.info("getCommentRepliesAPI:%s, commentRepliesJson:%s" % (getCommentRepliesAPI, commentRepliesJson))
 
                                                         # Sometimes a fetch can fail, and return None
@@ -224,7 +221,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                                                                    "video[snippet][description]:%s, "
                                                                                    "video[snippet][publishedAt]:%s, "
                                                                                    "result:%s"
-                                                                                    % (replies["id"],
+                                                                                   % (replies["id"],
                                                                                         channelName,
                                                                                         replies["snippet"]["authorDisplayName"],
                                                                                         replies["snippet"]["textDisplay"],
@@ -243,7 +240,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                                                 loopFlags["commentRepliesNextPageToken"] = False
                                                             else:
                                                                 # If it does exist, then we build the getCommentRepliesAPI with the next page token to go the next set of top level replies
-                                                                getCommentRepliesAPI = youtube_api.getCommentReplies % (topComment["id"], settings.youtube_API_key, commentRepliesJson["nextPageToken"])
+                                                                getCommentRepliesAPI = youtube_api.getCommentReplies % (topComment["id"], router_settings.youtube_API_key, commentRepliesJson["nextPageToken"])
 
                                         # If next page token does not exist, means that there are no more comments for the video
                                         # then we can stop the loop
@@ -252,7 +249,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                             loopFlags["commentThreadNextPageToken"] = False
                                         else:
                                             # If it does exist, then we build the getCommentThreadAPI with the next page token to go the next set of top level comments
-                                            getCommentThreadAPI = youtube_api.getCommentThread % (video["id"]["videoId"], settings.youtube_API_key, commentThreadJson["nextPageToken"])
+                                            getCommentThreadAPI = youtube_api.getCommentThread % (video["id"]["videoId"], router_settings.youtube_API_key, commentThreadJson["nextPageToken"])
 
                             # If next page token does not exist, means that there are no more videos in a channel left
                             # then we can stop the loop
@@ -261,7 +258,7 @@ class ChannelRequestHandler(tornado.web.RequestHandler):
                                 loopFlags["videosNextPageToken"] = False
                             else:
                                 # If it does exist, then we build the getVideosAPI with the next page token to go the next set of videos
-                                getVideosAPI = youtube_api.getVideos % (channelID["id"], settings.youtube_API_key, videosJson["nextPageToken"])
+                                getVideosAPI = youtube_api.getVideos % (channelID["id"], router_settings.youtube_API_key, videosJson["nextPageToken"])
 
                 # If next page token does not exist, means that there are no more channels left
                 # then we can stop the loop

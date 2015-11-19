@@ -1,13 +1,13 @@
-import motor
-import mongo_settings
 import exceptions
+import motor
 import tornado.ioloop
-import logger
-from tornado import gen
-from pymongo import errors
+import mongo_settings
 from bson.code import Code
+from pymongo import errors
+from tornado import gen
+from loggers import logger
 
-# mongo.py includes all the methods to access mongo db, and settings
+# mongo_client.py includes all the methods to access mongo db, and settings
 
 # setup a mongodb client
 client = motor.MotorClient(mongo_settings.mongodb_address, mongo_settings.mongodb_port)
@@ -47,14 +47,16 @@ def checkMongoDB(*args):
         tornado.ioloop.IOLoop.current().stop()
 
         # Raise an exceptions to the user
-        logger.logger.info("Cannot connect to MongoDB on address:" + str(mongo_settings.mongodb_address) + ", port:" + str(mongo_settings.mongodb_port))
+        logger.logger.info("Cannot connect to MongoDB on address:" + str(
+            mongo_settings.mongodb_address) + ", port:" + str(mongo_settings.mongodb_port))
 
         # Raise an IO exceptions to the user that we cannot connect to MongoDB
         raise exceptions.IOError("Cannot connect to MongoDB")
     else:
 
         # Log the user on successful connection attempt
-        logger.logger.info("Connected to MongoDB on address:" + str(mongo_settings.mongodb_address) + ", port:" + str(mongo_settings.mongodb_port))
+        logger.logger.info("Connected to MongoDB on address:" + str(mongo_settings.mongodb_address) + ", port:" + str(
+            mongo_settings.mongodb_port))
 
 @gen.coroutine
 def insert_user_video_comments(db_client, commentId, channelName, username, textDisplay, dateOfReply, channelId, videoId, title, description, dateOfVideo):

@@ -16,7 +16,6 @@ getChannels = "https://www.googleapis.com/youtube/v3/channels?part=contentDetail
 #                 if the # of results is over maxResults value
 getChannels_withID = "https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=%s&maxResults=50&key=%s&pageToken=%s"
 
-
 # get each video information according to the channelID we get get from using getChannels
 # Parameters:
 #   channelID   : ID of a channel, this is not the username, for example
