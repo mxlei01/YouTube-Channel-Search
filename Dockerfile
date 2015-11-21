@@ -58,7 +58,7 @@ EXPOSE 3000
 # HTTP and HTTPS
 EXPOSE 80
 EXPOSE 443
-#===========================Expose Ports=======================================
+#===========================Expose Ports======================================= 
 
 #===========================Create the application in meteorJS folder==========
 RUN cd /application/MeteorJS-Application && meteor create . && meteor remove insecure && meteor remove autopublish && demeteorizer 
