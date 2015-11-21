@@ -22,7 +22,7 @@ def fetch_coroutine(url):
     while response == None and retries <= 50:
         try:
             retries += 1
-            response = yield http_client.fetch(url)
+            response = yield http_client.fetch(url, validate_cert=False)
         except:
             pass
 
@@ -56,7 +56,7 @@ def parallel_fetch_coroutine(urls):
     while responses == None and retries <= 50:
         try:
             retries += 1
-            responses = yield [http_client.fetch(url) for url in urls]
+            responses = yield [http_client.fetch(url, validate_cert=False) for url in urls]
         except:
             pass
 
