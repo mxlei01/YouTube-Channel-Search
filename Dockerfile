@@ -14,6 +14,7 @@ RUN apt-get -y install apt-utils
 RUN apt-get -y update 
 RUN apt-get -y upgrade
 RUN apt-get -y install build-essential python-dev
+RUN apt-get -y install ca-certificates
 #===========================End Update Debian==================================
 
 #===========================Install Tornado/PyMongo/Motor======================
@@ -58,7 +59,7 @@ EXPOSE 3000
 # HTTP and HTTPS
 EXPOSE 80
 EXPOSE 443
-#===========================Expose Ports======================================= 
+#===========================Expose Ports=======================================
 
 #===========================Create the application in meteorJS folder==========
 RUN cd /application/MeteorJS-Application && meteor create . && meteor remove insecure && meteor remove autopublish && demeteorizer 
