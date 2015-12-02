@@ -21,10 +21,7 @@ RUN apt-get -y install ca-certificates
 
 #===========================Install Tornado/PyMongo/Motor======================
 RUN apt-get -y install python-pip
-RUN pip install tornado
-RUN pip install pymongo==2.8
-RUN pip install motor
-RUN pip install futures
+RUN pip install -r /application/Tornado-Application/requirements.txt
 #===========================Install Tornado/PyMongo/Motor======================
 
 #===========================Installing MeteorJS================================
