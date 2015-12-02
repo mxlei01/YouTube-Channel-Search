@@ -5,6 +5,8 @@ RUN mkdir /application
 COPY Tornado-Application /application/Tornado-Application
 COPY MongoDB-Settings /application/MongoDB-Settings
 COPY MeteorJS-Application  /application/MeteorJS-Application
+RUN apt-get install -y git
+COPY .git /application
 #=====Create a folder, and copy our application into the application folder====
 
 #===========================Start Update Debian================================
