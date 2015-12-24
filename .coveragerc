@@ -1,0 +1,10 @@
+[run]
+omit = 
+	/usr/local/lib/*
+	unit_tests/run_tests.py
+
+source =
+	.
+
+[report]
+ignore_errors = True

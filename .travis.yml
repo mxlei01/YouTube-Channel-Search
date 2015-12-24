@@ -22,8 +22,7 @@ notifications:
 before_install:
 - docker build -t  mxlei01/youtube-channel-search-travis .
 
-script: docker run --net="host" mxlei01/youtube-channel-search-travis /bin/sh -c "cd
-  /application/Tornado-Application && coverage run --omit=/usr/local/lib/*,unit_tests/run_tests.py --source=. -m tornado.test.runtests unit_tests.run_tests && COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN TRAVIS_BRANCH=$TRAVIS_BRANCH BRANCH=$TRAVIS_BRANCH coveralls"
+script: docker run --net="host" mxlei01/youtube-channel-search-travis /bin/sh -c /application/Build_Scripts/Run_Docker_Build.sh $COVERALLS_REPO_TOKEN $TRAVIS_BRANCH $TRAVIS_BRANCH
 
 after_success:
 - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
