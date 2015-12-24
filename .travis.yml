@@ -22,7 +22,7 @@ notifications:
 before_install:
 - docker build -t  mxlei01/youtube-channel-search-travis .
 
-script: docker run --net="host" mxlei01/youtube-channel-search-travis /bin/sh -c /application/Build-Scripts/Run_Docker_Build.sh $COVERALLS_REPO_TOKEN $TRAVIS_BRANCH $TRAVIS_BRANCH
+script: docker run --net="host" mxlei01/youtube-channel-search-travis /bin/sh /application/Build-Scripts/Run_Docker_Build.sh $COVERALLS_REPO_TOKEN $TRAVIS_BRANCH $TRAVIS_BRANCH
 
 after_success:
 - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
