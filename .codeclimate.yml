@@ -1,0 +1,21 @@
+engines:
+  radon: 
+    enabled: true
+  eslint:
+    enabled: true
+  csslint:
+    enabled: true
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - python
+      - javascript
+  fixme:
+    enabled: true
+  pep8:
+    enabled: true
+    
+ratings:
+  paths:
+    - Tornado-Application/**
