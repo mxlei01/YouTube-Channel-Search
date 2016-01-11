@@ -47,7 +47,8 @@ $( document ).ready(function()
                 },
                 // Base URL settings, according to the dropdown, we will either populate a
                 // Channel ID or user name, but not both (limitation of youtube API v3)
-                url: window.location.href+"/channel?"
+                //url: 'http://mxlei01.com:8888/channel?'
+                url: location.protocol+'//'+location.hostname+":8888"+"/channel?"
             }
         }
     )
