@@ -47,7 +47,7 @@ $( document ).ready(function()
                 },
                 // Base URL settings, according to the dropdown, we will either populate a
                 // Channel ID or user name, but not both (limitation of youtube API v3)
-                url: window.location.href+"/channel?";
+                url: window.location.href+"/channel?"
             }
         }
     )
