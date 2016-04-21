@@ -2,10 +2,10 @@
 [![Code Health](https://landscape.io/github/mxlei01/YouTube-Channel-Search/master/landscape.svg?style=flat)](https://landscape.io/github/mxlei01/YouTube-Channel-Search/master)
 [![Coverage Status](https://coveralls.io/repos/mxlei01/YouTube-Channel-Search/badge.svg?branch=master&service=github)](https://coveralls.io/github/mxlei01/YouTube-Channel-Search?branch=master)
 [![Code Climate](https://codeclimate.com/github/mxlei01/YouTube-Channel-Search/badges/gpa.svg)](https://codeclimate.com/github/mxlei01/YouTube-Channel-Search)
+[![Join the chat at https://gitter.im/mxlei01/YouTube-Channel-Search](https://badges.gitter.im/mxlei01/YouTube-Channel-Search.svg)](https://gitter.im/mxlei01/YouTube-Channel-Search?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # YouTube-Channel-Search
 
-[![Join the chat at https://gitter.im/mxlei01/YouTube-Channel-Search](https://badges.gitter.im/mxlei01/YouTube-Channel-Search.svg)](https://gitter.im/mxlei01/YouTube-Channel-Search?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 <p>Searches a channel in Youtube, and lists out all the user's comments, based on MeteorJS, Tornado, and MongoDB.</p>
 
 <h1> How to Setup: </h1>
